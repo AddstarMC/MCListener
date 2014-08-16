@@ -43,6 +43,7 @@ public class Decoder extends ByteToMessageDecoder
 			}
 			break;
 		case 2: // Login
+			disconnect(ctx, "Test");
 			break;
 		}
 		
@@ -59,9 +60,15 @@ public class Decoder extends ByteToMessageDecoder
 		return next;
 	}
 	
-	private void disconnect(String message)
+	private void disconnect(ChannelHandlerContext ctx, String message)
 	{
+		String text = String.format("{\"text\":\"%s\"}", message);
 		
+		ByteBuf buffer = Unpooled.buffer();
+		Utils.writeVarInt(buffer, 0);
+		Utils.writeString(buffer, text);
+		
+		ctx.channel().writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE);
 	}
 	
 	private void send(ChannelHandlerContext ctx, ByteBuf buffer)
