@@ -1,4 +1,4 @@
-package au.com.addstar.MCListener.handlers;
+package au.com.addstar.MCListener.protocols;
 
 import java.util.List;
 
@@ -10,22 +10,18 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
-public class Decoder extends ByteToMessageDecoder
+public class MC1_7Handler extends ByteToMessageDecoder
 {
 	@Override
 	protected void decode( ChannelHandlerContext ctx, ByteBuf in, List<Object> out ) throws Exception
 	{
 		int byteSize = in.readableBytes();
 		if(byteSize == 0)
-		{
-			System.out.println("exit");
 			return;
-		}
 		
 		int id = Utils.readVarInt(in);
 		int conState = ctx.channel().attr(Utils.connectionState).get();
 
-		System.out.println("id: " + id + " con: " + conState);
 		switch(conState)
 		{
 		case 0: // Handshake (initial)
@@ -43,7 +39,7 @@ public class Decoder extends ByteToMessageDecoder
 			}
 			break;
 		case 2: // Login
-			disconnect(ctx, "Test");
+			disconnect(ctx, MCListener.dcMessage);
 			break;
 		}
 		
@@ -51,12 +47,11 @@ public class Decoder extends ByteToMessageDecoder
 	
 	private int readHandshakePacket(ByteBuf in)
 	{
-		int protocol = Utils.readVarInt(in);
-		String address = Utils.readString(in);
-		int port = in.readUnsignedShort();
+		Utils.readVarInt(in);
+		Utils.readString(in);
+		in.readUnsignedShort();
 		int next = Utils.readVarInt(in);
 		
-		System.out.println(String.format("Handshake: proto=%d address=%s:%d next=%d", protocol, address, port, next));
 		return next;
 	}
 	
@@ -79,7 +74,6 @@ public class Decoder extends ByteToMessageDecoder
 	private ByteBuf writeStatusPacket()
 	{
 		String status = Utils.createServerStatus(MCListener.pingMessage, MCListener.mcVersion, MCListener.mcProtocol, MCListener.currentPlayers, MCListener.maxPlayers);
-		System.out.println("Writing status: " + status);
 		
 		ByteBuf buffer = Unpooled.buffer();
 		Utils.writeVarInt(buffer, 0);
@@ -89,8 +83,6 @@ public class Decoder extends ByteToMessageDecoder
 	
 	private ByteBuf writePongPacket(long time)
 	{
-		System.out.println("Writing ping: " + time);
-		
 		ByteBuf buffer = Unpooled.buffer();
 		Utils.writeVarInt(buffer, 1);
 		buffer.writeLong(time);

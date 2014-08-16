@@ -11,6 +11,7 @@ public class MCListener
 	public static int maxPlayers = 0;
 	public static String mcVersion = "Offline";
 	public static int mcProtocol = 0;
+	public static String dcMessage = "The server is offline";
 	
 	public static void main(String[] args) throws IOException
 	{
