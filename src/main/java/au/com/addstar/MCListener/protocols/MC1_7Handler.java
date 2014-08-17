@@ -20,7 +20,7 @@ public class MC1_7Handler extends ByteToMessageDecoder
 	protected void decode( ChannelHandlerContext ctx, ByteBuf in, List<Object> out ) throws Exception
 	{
 		int byteSize = in.readableBytes();
-		if(byteSize == 0)
+		if(byteSize == 0 || !ctx.channel().isOpen())
 			return;
 		
 		int id = Utils.readVarInt(in);
