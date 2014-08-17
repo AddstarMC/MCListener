@@ -19,8 +19,10 @@ public class MCListener
 	public static String pingMOTD;
 	public static int pingCurPlayers;
 	public static int pingMaxPlayers;
+	public static String pingMcVersion = "1.7.10";
 	public static String[] pingDescription;
 	public static String kickMessage;
+	
 	public static int port;
 	
 	public static Logger logger;

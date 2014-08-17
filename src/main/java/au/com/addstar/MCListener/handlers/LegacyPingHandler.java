@@ -27,7 +27,11 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
 				return;
 			
 			InetSocketAddress address = (InetSocketAddress)ctx.channel().remoteAddress();
-		      
+		    
+			String version = MCListener.pingMcVersion;
+			if(MCListener.pingAppearOffline)
+				version = "Offline";
+			
 			int size = buffer.readableBytes();
 			String message;
 			switch(size)
@@ -41,7 +45,7 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
 					return;
 				
 				System.out.println(String.format("Ping: (1.4-1.5.x) from %s:%d", address.getAddress(), address.getPort()));
-				message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, "1.7.10", MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
+				message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, version, MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
 				break;
 			default:
 				boolean flag1 = buffer.readUnsignedByte() == 1;
@@ -57,7 +61,7 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
                     return;
 
                 System.out.println(String.format("Ping: (1.6.X) from %s:%d", address.getAddress(), address.getPort()));
-                message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, "1.7.10", MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
+                message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, version, MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
                 break;
 			}
 			
@@ -81,7 +85,7 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
 	private void sendPing(ChannelHandlerContext ctx, String message)
     {
 		ByteBuf buffer = toByteBuff(message);
-        ctx.channel().writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE);
+		ctx.pipeline().firstContext().writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE);
     }
 
     private ByteBuf toByteBuff(String message)
