@@ -1,8 +1,7 @@
 package au.com.addstar.MCListener.handlers;
 
-import java.net.InetSocketAddress;
-
 import au.com.addstar.MCListener.MCListener;
+import au.com.addstar.MCListener.Utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -26,8 +25,6 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
 			if(buffer.readUnsignedByte() != 254)
 				return;
 			
-			InetSocketAddress address = (InetSocketAddress)ctx.channel().remoteAddress();
-		    
 			String version = MCListener.pingMcVersion;
 			if(MCListener.pingAppearOffline)
 				version = "Offline";
@@ -37,14 +34,14 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
 			switch(size)
 			{
 			case 0:
-				System.out.println(String.format("Ping: (<1.3.x) from %s:%d", address.getAddress(), address.getPort()));
+				MCListener.logger.info(String.format("%s pinged the server using < MC 1.3", Utils.getAddressString(ctx.channel().remoteAddress())));
 				message = String.format("%s§%d§%d", MCListener.legacyPingMOTD(false), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
 				break;
 			case 1:
 				if (buffer.readUnsignedByte() != 1)
 					return;
-				
-				System.out.println(String.format("Ping: (1.4-1.5.x) from %s:%d", address.getAddress(), address.getPort()));
+
+				MCListener.logger.info(String.format("%s pinged the server using MC 1.4-1.5", Utils.getAddressString(ctx.channel().remoteAddress())));
 				message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, version, MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
 				break;
 			default:
@@ -60,7 +57,7 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
                 if (!flag1)
                     return;
 
-                System.out.println(String.format("Ping: (1.6.X) from %s:%d", address.getAddress(), address.getPort()));
+                MCListener.logger.info(String.format("%s pinged the server using MC 1.6", Utils.getAddressString(ctx.channel().remoteAddress())));
                 message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, version, MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
                 break;
 			}
@@ -80,6 +77,13 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
 				ctx.fireChannelRead(msg);
 			}
 		}
+	}
+	
+	@Override
+	public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause ) throws Exception
+	{
+		cause.printStackTrace();
+		ctx.close();
 	}
 	
 	private void sendPing(ChannelHandlerContext ctx, String message)
