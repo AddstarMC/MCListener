@@ -38,6 +38,7 @@ public class ServerListener
 			.childOption(ChannelOption.SO_KEEPALIVE, true);
 		
 		builder.bind(port).syncUninterruptibly();
+		MCListener.logger.info("MCListener is listening for server pings and connections on port " + port);
 	}
 	
 	public void close()

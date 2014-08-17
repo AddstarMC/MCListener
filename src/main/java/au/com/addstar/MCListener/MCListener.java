@@ -130,6 +130,8 @@ public class MCListener
 			if(line.equalsIgnoreCase("exit") || line.equalsIgnoreCase("quit") || line.equalsIgnoreCase("q") || line.equalsIgnoreCase("stop"))
 				break;
 		}
+		
+		MCListener.logger.info("Shutting down...");
 		listener.close();
 	}
 }
