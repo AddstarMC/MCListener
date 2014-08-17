@@ -1,9 +1,9 @@
 package au.com.addstar.MCListener;
 
 import au.com.addstar.MCListener.handlers.Collector;
+import au.com.addstar.MCListener.handlers.Handshaker;
 import au.com.addstar.MCListener.handlers.LegacyPingHandler;
 import au.com.addstar.MCListener.handlers.Prepender;
-import au.com.addstar.MCListener.protocols.MC1_7Handler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -30,7 +30,7 @@ public class ServerListener
 				@Override
 				protected void initChannel( SocketChannel ch ) throws Exception
 				{
-					ch.pipeline().addLast("legacy_query", new LegacyPingHandler()).addLast("splitter", new Collector()).addLast("decoder", new MC1_7Handler()).addLast("prepender", new Prepender());
+					ch.pipeline().addLast("legacy_query", new LegacyPingHandler()).addLast("splitter", new Collector()).addLast("decoder", new Handshaker()).addLast("prepender", new Prepender());
 					ch.attr(Utils.connectionState).set(0);
 				}
 			})

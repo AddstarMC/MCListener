@@ -1,5 +1,8 @@
 package au.com.addstar.MCListener;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
@@ -71,5 +74,10 @@ public class Utils
 		return String.format("{\"version\": {\"name\": \"%s\",\"protocol\": %d},\"players\":{\"max\": %d,\"online\":%d},\"description\":{\"text\":\"%s\"}}", mcVer, mcProto, maxPlayers, currentPlayers, motd);
 	}
 
+	public static String getAddressString(SocketAddress address)
+	{
+		InetSocketAddress addr = (InetSocketAddress)address;
+		return String.format("%s:%d", addr.getAddress(), addr.getPort());
+	}
 	
 }

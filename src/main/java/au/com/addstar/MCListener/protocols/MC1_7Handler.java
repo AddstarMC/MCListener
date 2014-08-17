@@ -28,13 +28,11 @@ public class MC1_7Handler extends ByteToMessageDecoder
 
 		switch(conState)
 		{
-		case 0: // Handshake (initial)
-			ctx.channel().attr(Utils.connectionState).set(readHandshakePacket(in));
-			break;
 		case 1: // Status
 			switch(id)
 			{
 			case 0: // Status
+				MCListener.logger.info(String.format("%s pinged the server using MC 1.7", Utils.getAddressString(ctx.channel().remoteAddress())));
 				send(ctx, writeStatusPacket());
 				break;
 			case 1: // Ping
@@ -43,21 +41,14 @@ public class MC1_7Handler extends ByteToMessageDecoder
 			}
 			break;
 		case 2: // Login
+			MCListener.logger.info(String.format("%s connected using MC 1.7", Utils.getAddressString(ctx.channel().remoteAddress())));
 			disconnect(ctx, MCListener.kickMessage);
 			break;
 		}
 		
 	}
 	
-	private int readHandshakePacket(ByteBuf in)
-	{
-		Utils.readVarInt(in);
-		Utils.readString(in);
-		in.readUnsignedShort();
-		int next = Utils.readVarInt(in);
-		
-		return next;
-	}
+	
 	
 	@SuppressWarnings( "unchecked" )
 	private void disconnect(ChannelHandlerContext ctx, String message)

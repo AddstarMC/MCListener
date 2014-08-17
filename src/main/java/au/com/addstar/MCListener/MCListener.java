@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +22,8 @@ public class MCListener
 	public static String[] pingDescription;
 	public static String kickMessage;
 	public static int port;
+	
+	public static Logger logger;
 	
 	private static void loadConfig() throws IOException
 	{
@@ -109,6 +114,12 @@ public class MCListener
 			System.err.println(e.getMessage());
 			return;
 		}
+		
+		logger = Logger.getLogger("MCListener");
+		logger.setUseParentHandlers(false);
+		Handler handler = new ConsoleHandler();
+		handler.setFormatter(new LogFormatter());
+		logger.addHandler(handler);
 		
 		ServerListener listener = new ServerListener(port);
 		
