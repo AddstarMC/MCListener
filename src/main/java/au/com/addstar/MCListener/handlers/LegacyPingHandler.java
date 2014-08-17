@@ -34,14 +34,14 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
 			{
 			case 0:
 				System.out.println(String.format("Ping: (<1.3.x) from %s:%d", address.getAddress(), address.getPort()));
-				message = String.format("%s§%d§%d", MCListener.pingMessage, MCListener.currentPlayers, MCListener.maxPlayers);
+				message = String.format("%s§%d§%d", MCListener.legacyPingMOTD(false), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
 				break;
 			case 1:
 				if (buffer.readUnsignedByte() != 1)
 					return;
 				
 				System.out.println(String.format("Ping: (1.4-1.5.x) from %s:%d", address.getAddress(), address.getPort()));
-				message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, MCListener.mcVersion, MCListener.pingMessage, MCListener.currentPlayers, MCListener.maxPlayers);
+				message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, "1.7.10", MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
 				break;
 			default:
 				boolean flag1 = buffer.readUnsignedByte() == 1;
@@ -57,7 +57,7 @@ public class LegacyPingHandler extends ChannelInboundHandlerAdapter
                     return;
 
                 System.out.println(String.format("Ping: (1.6.X) from %s:%d", address.getAddress(), address.getPort()));
-                message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, MCListener.mcVersion, MCListener.pingMessage, MCListener.currentPlayers, MCListener.maxPlayers);
+                message = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, "1.7.10", MCListener.legacyPingMOTD(true), MCListener.pingCurPlayers, MCListener.pingMaxPlayers);
                 break;
 			}
 			

@@ -1,6 +1,10 @@
 package au.com.addstar.MCListener.protocols;
 
 import java.util.List;
+import java.util.UUID;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import au.com.addstar.MCListener.MCListener;
 import au.com.addstar.MCListener.Utils;
@@ -39,7 +43,7 @@ public class MC1_7Handler extends ByteToMessageDecoder
 			}
 			break;
 		case 2: // Login
-			disconnect(ctx, MCListener.dcMessage);
+			disconnect(ctx, MCListener.kickMessage);
 			break;
 		}
 		
@@ -55,13 +59,15 @@ public class MC1_7Handler extends ByteToMessageDecoder
 		return next;
 	}
 	
+	@SuppressWarnings( "unchecked" )
 	private void disconnect(ChannelHandlerContext ctx, String message)
 	{
-		String text = String.format("{\"text\":\"%s\"}", message);
+		JSONObject root = new JSONObject();
+		root.put("text", message);
 		
 		ByteBuf buffer = Unpooled.buffer();
 		Utils.writeVarInt(buffer, 0);
-		Utils.writeString(buffer, text);
+		Utils.writeString(buffer, root.toJSONString());
 		
 		ctx.channel().writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE);
 	}
@@ -71,13 +77,46 @@ public class MC1_7Handler extends ByteToMessageDecoder
 		ctx.channel().writeAndFlush(buffer);
 	}
 	
+	@SuppressWarnings( "unchecked" )
 	private ByteBuf writeStatusPacket()
 	{
-		String status = Utils.createServerStatus(MCListener.pingMessage, MCListener.mcVersion, MCListener.mcProtocol, MCListener.currentPlayers, MCListener.maxPlayers);
+		JSONObject root = new JSONObject();
+		JSONObject version = new JSONObject();
+		if(MCListener.pingAppearOffline)
+		{
+			version.put("name", "Offline");
+			version.put("protocol", 0);
+		}
+		else
+		{
+			version.put("name", "1.7.10");
+			version.put("protocol", 5);
+		}
+		
+		JSONObject players = new JSONObject();
+		players.put("max", MCListener.pingMaxPlayers);
+		players.put("online", MCListener.pingCurPlayers);
+		if(MCListener.pingDescription.length > 0)
+		{
+			JSONArray sample = new JSONArray();
+			for(String line : MCListener.pingDescription)
+			{
+				UUID id = UUID.nameUUIDFromBytes(line.getBytes());
+				JSONObject samplePart = new JSONObject();
+				samplePart.put("name", line);
+				samplePart.put("id", id.toString());
+				sample.add(samplePart);
+			}
+			players.put("sample", sample);
+		}
+		
+		root.put("version", version);
+		root.put("players", players);
+		root.put("description", MCListener.pingMOTD);
 		
 		ByteBuf buffer = Unpooled.buffer();
 		Utils.writeVarInt(buffer, 0);
-		Utils.writeString(buffer, status);
+		Utils.writeString(buffer, root.toJSONString());
 		return buffer;
 	}
 	
