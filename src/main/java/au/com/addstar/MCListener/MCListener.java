@@ -3,6 +3,7 @@ package au.com.addstar.MCListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,6 +23,7 @@ public class MCListener
 	public static String pingMcVersion = "1.7.10";
 	public static String[] pingDescription;
 	public static String kickMessage;
+	public static ServerIcon pingIcon;
 	
 	public static int port;
 	
@@ -66,6 +68,25 @@ public class MCListener
 		
 		pingDescription = translate(props.getProperty("ping.description", "")).split("\n");
 		
+		try
+		{
+			String filePath = props.getProperty("ping.icon", "server-icon.png");
+			File iconFile = new File(filePath);
+			if(iconFile.exists())
+				pingIcon = new ServerIcon(iconFile);
+			else if(!filePath.equals("server-icon.png"))
+				logger.warning("Cannot find icon " + props.getProperty("ping.icon", "server-icon.png"));
+		}
+		catch(FileNotFoundException e)
+		{
+			if(!props.getProperty("ping.icon", "server-icon.png").equals("server-icon.png"))
+				logger.warning("Cannot find icon " + props.getProperty("ping.icon", "server-icon.png"));
+		}
+		catch(IllegalArgumentException e)
+		{
+			throw new IOException("ERROR: ping.icon " + e.getMessage());
+		}
+		
 		kickMessage = translate(props.getProperty("kick.message", "This server is offline"));
 	}
 	
@@ -107,6 +128,12 @@ public class MCListener
 	
 	public static void main(String[] args) throws IOException
 	{
+		logger = Logger.getLogger("MCListener");
+		logger.setUseParentHandlers(false);
+		Handler handler = new ConsoleHandler();
+		handler.setFormatter(new LogFormatter());
+		logger.addHandler(handler);
+		
 		try
 		{
 			loadConfig();
@@ -116,12 +143,6 @@ public class MCListener
 			System.err.println(e.getMessage());
 			return;
 		}
-		
-		logger = Logger.getLogger("MCListener");
-		logger.setUseParentHandlers(false);
-		Handler handler = new ConsoleHandler();
-		handler.setFormatter(new LogFormatter());
-		logger.addHandler(handler);
 		
 		ServerListener listener = new ServerListener(port);
 		

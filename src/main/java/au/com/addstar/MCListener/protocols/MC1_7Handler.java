@@ -105,6 +105,9 @@ public class MC1_7Handler extends ByteToMessageDecoder
 		root.put("players", players);
 		root.put("description", MCListener.pingMOTD);
 		
+		if(MCListener.pingIcon != null)
+			root.put("favicon", MCListener.pingIcon.getIconString());
+		
 		ByteBuf buffer = Unpooled.buffer();
 		Utils.writeVarInt(buffer, 0);
 		Utils.writeString(buffer, root.toJSONString());
