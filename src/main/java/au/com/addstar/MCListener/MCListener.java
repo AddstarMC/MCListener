@@ -33,7 +33,7 @@ public class MCListener
 		if(file.exists())
 			input = new FileInputStream(file);
 		else
-			input = MCListener.class.getResourceAsStream("config.cfg");
+			input = MCListener.class.getResourceAsStream("/config.cfg");
 		
 		props.load(input);
 		input.close();
