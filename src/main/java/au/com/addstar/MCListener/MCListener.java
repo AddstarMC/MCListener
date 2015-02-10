@@ -20,7 +20,7 @@ public class MCListener
 	public static String pingMOTD;
 	public static int pingCurPlayers;
 	public static int pingMaxPlayers;
-	public static String pingMcVersion = "1.7.10";
+	public static String pingMcVersion;
 	public static String[] pingDescription;
 	public static String kickMessage;
 	public static ServerIcon pingIcon;
@@ -54,6 +54,7 @@ public class MCListener
 			throw new IOException("ERROR: server.port is not number. Needs to be 0 <= port <= 65535");
 		}
 		
+		pingMcVersion = props.getProperty("ping.mcversion", "1.8.0");
 		pingAppearOffline = Boolean.valueOf(props.getProperty("ping.offline"));
 		pingMOTD = translate(props.getProperty("ping.motd", "The server is offline"));
 		

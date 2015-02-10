@@ -8,6 +8,8 @@ public class ProtocolManager
 	{
 		if (protocolVersion == 4 || protocolVersion == 5)
 			return new MC1_7Handler();
+		if (protocolVersion == 47)
+			return new MC1_8Handler();
 		
 		return null;
 	}
